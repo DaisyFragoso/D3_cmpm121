@@ -11,7 +11,7 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
-// ======= basic UI Container  =======
+//  basic UI Container
 const controlPanelDiv = document.createElement("div");
 controlPanelDiv.id = "controlPanel";
 document.body.append(controlPanelDiv);
@@ -25,13 +25,14 @@ statusPanelDiv.id = "statusPanel";
 document.body.append(statusPanelDiv);
 
 // ======= core constants  =======
-// // Our classroom location
+
 const CLASSROOM_LATLNG = leaflet.latLng(
+  // classroom location
   36.997936938057016,
   -122.05703507501151,
 );
 
-// // Tunable gameplay parameters
+// Tunable gameplay parameters
 const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 3;
@@ -67,7 +68,6 @@ playerMarker.addTo(map);
 // // Display the player's points
 // let playerPoints = 0;
 // statusPanelDiv.innerHTML = "No points yet...";
-
 
 // ======= Grid + cell model =======
 
@@ -107,7 +107,6 @@ function cellToBounds(row: number, col: number): leaflet.LatLngBoundsLiteral {
     [north, east],
   ];
 }
-
 
 // ======= Deterministic token spawning =======
 
@@ -175,17 +174,17 @@ function checkWinIfNeeded(newValue: number) {
 }
 
 function onCellClicked(cell: Cell) {
-    console.log(" in here!! ");
+  console.log(" in here!! ");
   if (!isCellNearPlayer(cell)) {
     // Not close enough to interact
-      console.log("not close enough to interact ");
+    console.log("not close enough to interact ");
     return;
   }
 
   console.log("close enough ");
   if (handTokenValue === null) {
     // Try to pick up a token from the cell
-      // console.log("there is a token ");
+    // console.log("there is a token ");
     if (cell.tokenValue !== null) {
       handTokenValue = cell.tokenValue;
       setCellToken(cell, null);
@@ -276,8 +275,6 @@ function updateVisibleCells() {
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
 map.on("moveend", updateVisibleCells);
-
-
 
 // // @deno-types="npm:@types/leaflet"
 // import leaflet from "leaflet";
