@@ -37,7 +37,10 @@ const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 3;
 // const CACHE_SPAWN_PROBABILITY = 0.1;
-const WIN_VALUE = 8;
+const WIN_VALUE = 32;
+
+// ======= player setup =======
+let playerLatLng = CLASSROOM_LATLNG.clone();
 
 // ======= map setup  =======
 
@@ -125,9 +128,17 @@ let handTokenValue: number | null = null;
 
 function updateStatusPanel() {
   if (handTokenValue === null) {
-    statusPanelDiv.textContent = "Hand: (empty)";
+    statusPanelDiv.textContent = `Hand: (empty) | Player at: (${
+      playerLatLng.lat.toFixed(
+        5,
+      )
+    }, ${playerLatLng.lng.toFixed(5)})`;
   } else {
-    statusPanelDiv.textContent = `Hand: ${handTokenValue}`;
+    statusPanelDiv.textContent = `Hand: ${handTokenValue} | Player at: (${
+      playerLatLng.lat.toFixed(
+        5,
+      )
+    }, ${playerLatLng.lng.toFixed(5)})`;
   }
 }
 
@@ -159,7 +170,7 @@ function setCellToken(cell: Cell, value: number | null) {
 
 // Return true if the given cell is within NEIGHBORHOOD_SIZE cells of the player
 function isCellNearPlayer(cell: Cell): boolean {
-  const playerCell = latLngToCell(CLASSROOM_LATLNG.lat, CLASSROOM_LATLNG.lng);
+  const playerCell = latLngToCell(playerLatLng.lat, playerLatLng.lng);
   const dr = Math.abs(cell.coord.row - playerCell.row);
   const dc = Math.abs(cell.coord.col - playerCell.col);
   return dr <= NEIGHBORHOOD_SIZE && dc <= NEIGHBORHOOD_SIZE;
@@ -214,6 +225,7 @@ function onCellClicked(cell: Cell) {
     checkWinIfNeeded(newValue);
   } else {
     // Different values; do nothing or show feedback if you want
+    console.log("cannot craft: different token values");
   }
 }
 
@@ -265,12 +277,66 @@ function updateVisibleCells() {
   const minCol = Math.floor(west / TILE_DEGREES);
   const maxCol = Math.floor(east / TILE_DEGREES);
 
+  // 1) Despawn cells that are *no longer visible*
+  for (const [key, cell] of cells) {
+    const { row, col } = cell.coord;
+    const outOfView = row < minRow || row > maxRow || col < minCol ||
+      col > maxCol;
+
+    if (outOfView) {
+      map.removeLayer(cell.rect);
+      if (cell.label) {
+        map.removeLayer(cell.label);
+      }
+      cells.delete(key);
+    }
+  }
+
+  // 2) Ensure that all visible cells exist (spawn if needed)
   for (let row = minRow; row <= maxRow; row++) {
     for (let col = minCol; col <= maxCol; col++) {
       ensureCellExists({ row, col });
     }
   }
 }
+//   for (let row = minRow; row <= maxRow; row++) {
+//     for (let col = minCol; col <= maxCol; col++) {
+//       ensureCellExists({ row, col });
+//     }
+//   }
+// }
+
+// ======= Player movement controls =======
+
+// Move the player by deltaRow / deltaCol grid steps
+function movePlayer(deltaRow: number, deltaCol: number) {
+  // One grid step = TILE_DEGREES
+  // "Row" corresponds to latitude, "Col" to longitude
+  const newLat = playerLatLng.lat + deltaRow * TILE_DEGREES;
+  const newLng = playerLatLng.lng + deltaCol * TILE_DEGREES;
+
+  playerLatLng = leaflet.latLng(newLat, newLng);
+
+  // Move the marker
+  playerMarker.setLatLng(playerLatLng);
+
+  // Keep camera following player
+  map.panTo(playerLatLng);
+
+  // Update HUD
+  updateStatusPanel();
+
+  // Update visible cells (in case bounds changed slightly)
+  updateVisibleCells();
+}
+
+// arrow buttoms for player movement
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "ArrowUp") movePlayer(+1, 0);
+  if (ev.key === "ArrowDown") movePlayer(-1, 0);
+  if (ev.key === "ArrowRight") movePlayer(0, +1);
+  if (ev.key === "ArrowLeft") movePlayer(0, -1);
+});
 
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
