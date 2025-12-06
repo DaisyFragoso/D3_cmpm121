@@ -37,7 +37,7 @@ const GAMEPLAY_ZOOM_LEVEL = 19;
 const TILE_DEGREES = 1e-4;
 const NEIGHBORHOOD_SIZE = 3;
 // const CACHE_SPAWN_PROBABILITY = 0.1;
-const WIN_VALUE = 32;
+const WIN_VALUE = 16;
 
 // ======= player setup =======
 let playerLatLng = CLASSROOM_LATLNG.clone();
