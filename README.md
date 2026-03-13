@@ -2,7 +2,7 @@
 
 This is the starting point for your CMPM 121 D3 project. Students should make sure to remove _this_ content from their README.md file and replace it with their own project documentation.
 
-#3Part d.A
+## 3Part d.A
 Get a core map, cell inventory, and crafting loop working around the classroom
 1.Create a leaflet map, centered on the fixed classroom location
 2.add a tile later
@@ -30,7 +30,7 @@ Get a core map, cell inventory, and crafting loop working around the classroom
   -check after every interactio if player has reached the crafting win variable.
       - check held token value
 
-##Part d.B
+## Part d.B
 expand game so it works acores the globe using a Null Island anchered grid and simulated player movement
 
 ##D3.b plan
