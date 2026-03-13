@@ -260,6 +260,8 @@ function ensureCellExists(coord: CellCoord): Cell {
   };
   visibleCells.set(key, cell);
 
+  refreshCellDisplay(cell);
+
   rect.on("click", () => onCellClicked(cell));
 
   return cell;
