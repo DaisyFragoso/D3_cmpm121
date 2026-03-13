@@ -64,3 +64,15 @@ Upgrade the map so cells behave as if their modified state is remembered even ad
 - Refactor click/crafing logic to write into modified state
 - refactor visible cell redraw from saved content
 - remove old assumption that off sceen cells are always forgotten
+
+
+## Part d3.D Gameplay across real world space and time
+Replace button movement with real world geolocation movement (pokemon go like). Persist game state across page reloads using localStorage and provide controls for starting a new game and switching between movement modes
+  -Create movement controller interface
+  -move button controls behind the interface 
+  - implement geolocation movement controller
+  - Add movement mode selection through UI toggle
+  - create save/load helpers using localStorage
+  - Serialize and restore modified cell contents, hand token and player location
+  - "new game" button
+  - save after eveyr important state change
