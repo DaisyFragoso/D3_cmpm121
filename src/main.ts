@@ -111,6 +111,46 @@ function cellToBounds(row: number, col: number): leaflet.LatLngBoundsLiteral {
   ];
 }
 
+// Second map nonvisible ones
+const modifiedCellContents = new Map<string, number | null>();
+
+//helper function to get the current token value for a coordinate
+function getCellTokenValue(coord: CellCoord): number | null {
+  const key = cellKey(coord);
+
+  if (modifiedCellContents.has(key)) {
+    return modifiedCellContents.get(key)!;
+  }
+
+  return initialTokenValue(coord);
+}
+
+function setCellTokenValue(coord: CellCoord, value: number | null) {
+  const key = cellKey(coord);
+  modifiedCellContents.set(key, value);
+}
+
+//helper for rendering cells info
+function refreshCellDisplay(cell: Cell) {
+  const value = getCellTokenValue(cell.coord);
+  cell.tokenValue = value;
+
+  if (cell.label) {
+    map.removeLayer(cell.label);
+    delete cell.label;
+  }
+
+  if (value !== null) {
+    const center = cell.rect.getBounds().getCenter();
+    const divIcon = leaflet.divIcon({
+      className: "token-label",
+      html: `${value}`,
+    });
+
+    cell.label = leaflet.marker(center, { icon: divIcon }).addTo(map);
+  }
+}
+
 // ======= Deterministic token spawning =======
 
 // Decide initial token for a cell, using only (row, col)
@@ -140,33 +180,10 @@ function updateStatusPanel() {
       )
     }, ${playerLatLng.lng.toFixed(5)})`;
   }
+  return;
 }
 
 updateStatusPanel();
-
-// ======= Cell rendering helpers =======
-
-function setCellToken(cell: Cell, value: number | null) {
-  cell.tokenValue = value;
-
-  // Remove any old label
-  if (cell.label) {
-    map.removeLayer(cell.label);
-    cell.label == undefined;
-  }
-
-  if (value !== null) {
-    const center = cell.rect.getBounds().getCenter();
-    const divIcon = leaflet.divIcon({
-      className: "token-label",
-      html: `${value}`,
-      // iconSize: [30, 30],
-      iconAnchor: [TILE_DEGREES, TILE_DEGREES],
-    });
-
-    cell.label = leaflet.marker(center, { icon: divIcon }).addTo(map);
-  }
-}
 
 // Return true if the given cell is within NEIGHBORHOOD_SIZE cells of the player
 function isCellNearPlayer(cell: Cell): boolean {
@@ -188,36 +205,40 @@ function onCellClicked(cell: Cell) {
   if (!isCellNearPlayer(cell)) {
     return;
   }
+  const cellValue = getCellTokenValue(cell.coord);
 
   if (handTokenValue === null) {
-    if (cell.tokenValue !== null) {
-      handTokenValue = cell.tokenValue;
-      setCellToken(cell, null);
+    if (cellValue !== null) {
+      handTokenValue = cellValue;
+      setCellTokenValue(cell.coord, null);
+      refreshCellDisplay(cell);
       updateStatusPanel();
     }
     return;
   }
 
   // Hand is holding a token
-  if (cell.tokenValue === null) {
+  if (cellValue === null) {
     // Just place the token into an empty cell
-    setCellToken(cell, handTokenValue);
+    // setCellToken(cell.coord, handTokenValue);
+    setCellTokenValue(cell.coord, handTokenValue);
     handTokenValue = null;
+    refreshCellDisplay(cell);
     updateStatusPanel();
     return;
   }
 
   // ======= crafting =======
   // Cell has a token, hand has a token
-  if (cell.tokenValue === handTokenValue) {
+  if (cellValue === handTokenValue) {
     // Crafting: equal values → double, result stays in the cell
-    const newValue = cell.tokenValue * 2;
-    setCellToken(cell, newValue);
+    const newValue = cellValue * 2;
+    setCellTokenValue(cell.coord, newValue);
     handTokenValue = null;
+    refreshCellDisplay(cell);
     updateStatusPanel();
     checkWinIfNeeded(newValue);
-  } else {
-    // Different values; do nothing
+    return;
   }
 }
 
@@ -246,10 +267,11 @@ function ensureCellExists(coord: CellCoord): Cell {
   visibleCells.set(key, cell);
 
   // Initial token (deterministic)
-  const initial = initialTokenValue(coord);
-  if (initial !== null) {
-    setCellToken(cell, initial);
-  }
+  refreshCellDisplay(cell);
+  // const initial = initialTokenValue(coord);
+  // if (initial !== null) {
+  //   setCellToken(cell, initial);
+  // }
 
   rect.on("click", () => onCellClicked(cell));
 
