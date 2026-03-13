@@ -54,7 +54,7 @@ const map = leaflet.map(mapDiv, {
   scrollWheelZoom: false,
 });
 
-// // Populate the map with a background tile layer
+// Populate the map with a background tile layer
 leaflet
   .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -63,14 +63,10 @@ leaflet
   })
   .addTo(map);
 
-// // Add a marker to represent the player
+// Add a marker to represent the player
 const playerMarker = leaflet.marker(CLASSROOM_LATLNG);
 playerMarker.bindTooltip("That's you!");
 playerMarker.addTo(map);
-
-// // Display the player's points
-// let playerPoints = 0;
-// statusPanelDiv.innerHTML = "No points yet...";
 
 // ======= Grid + cell model =======
 
@@ -219,8 +215,6 @@ function onCellClicked(cell: Cell) {
 
   // Hand is holding a token
   if (cellValue === null) {
-    // Just place the token into an empty cell
-    // setCellToken(cell.coord, handTokenValue);
     setCellTokenValue(cell.coord, handTokenValue);
     handTokenValue = null;
     refreshCellDisplay(cell);
@@ -265,13 +259,6 @@ function ensureCellExists(coord: CellCoord): Cell {
     tokenValue: null,
   };
   visibleCells.set(key, cell);
-
-  // Initial token (deterministic)
-  refreshCellDisplay(cell);
-  // const initial = initialTokenValue(coord);
-  // if (initial !== null) {
-  //   setCellToken(cell, initial);
-  // }
 
   rect.on("click", () => onCellClicked(cell));
 
