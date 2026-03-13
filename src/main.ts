@@ -185,19 +185,15 @@ function checkWinIfNeeded(newValue: number) {
 }
 
 function onCellClicked(cell: Cell) {
-  console.log(" in here!! ");
   if (!isCellNearPlayer(cell)) {
-    console.log("not close enough to interact ");
     return;
   }
 
-  console.log("close enough ");
   if (handTokenValue === null) {
     if (cell.tokenValue !== null) {
       handTokenValue = cell.tokenValue;
       setCellToken(cell, null);
       updateStatusPanel();
-      console.log("did something (picked up from cell)");
     }
     return;
   }
@@ -221,8 +217,7 @@ function onCellClicked(cell: Cell) {
     updateStatusPanel();
     checkWinIfNeeded(newValue);
   } else {
-    // Different values; do nothing or show feedback if you want
-    console.log("cannot craft: different token values");
+    // Different values; do nothing
   }
 }
 
