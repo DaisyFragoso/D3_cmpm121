@@ -1,6 +1,6 @@
-#controlPanel {
+/* #controlPanel {
   padding: 1rem;
-}
+} */
 
 #statusPanel {
   padding: 1rem;
@@ -9,4 +9,33 @@
 #map {
   width: 100%;
   height: 80vh;
+}
+
+#controlPanel {
+  display: grid;
+  grid-template-columns: 80px 80px 80px;
+  grid-template-rows: 50px 50px;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+#northBtn {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+#westBtn {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+#eastBtn {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+#southBtn {
+  grid-column: 2;
+  grid-row: 3;
 }

@@ -329,17 +329,23 @@ document.addEventListener("keydown", (ev) => {
   if (ev.key === "ArrowLeft") movePlayer(0, -1);
 });
 
-function makeMoveButton(label: string, dRow: number, dCol: number) {
+function makeMoveButton(
+  label: string,
+  id: string,
+  dRow: number,
+  dCol: number,
+) {
   const button = document.createElement("button");
   button.textContent = label;
+  button.id = id;
   button.addEventListener("click", () => movePlayer(dRow, dCol));
   controlPanelDiv.append(button);
 }
 
-makeMoveButton("North", +1, 0);
-makeMoveButton("South", -1, 0);
-makeMoveButton("East", 0, +1);
-makeMoveButton("West", 0, -1);
+makeMoveButton("North", "northBtn", +1, 0);
+makeMoveButton("South", "southBtn", -1, 0);
+makeMoveButton("East", "eastBtn", 0, +1);
+makeMoveButton("West", "westBtn", 0, -1);
 
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
