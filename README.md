@@ -51,3 +51,5 @@ changes in part b
   -pan the map without moving character
   -cells spawning and despawning
   - raise the win state to 32
+  -add north/south/east/west buttons
+  - remove debugging logs 
