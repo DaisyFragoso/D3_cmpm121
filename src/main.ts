@@ -86,7 +86,7 @@ type Cell = {
   label?: leaflet.Marker;
 };
 
-const cells = new Map<string, Cell>();
+const visibleCells = new Map<string, Cell>();
 
 function cellKey(coord: CellCoord): string {
   return `${coord.row},${coord.col}`;
@@ -226,7 +226,7 @@ function onCellClicked(cell: Cell) {
 // Create a cell if not already created, including initial token
 function ensureCellExists(coord: CellCoord): Cell {
   const key = cellKey(coord);
-  const existing = cells.get(key);
+  const existing = visibleCells.get(key);
   if (existing) return existing;
 
   const bounds = cellToBounds(coord.row, coord.col);
@@ -243,7 +243,7 @@ function ensureCellExists(coord: CellCoord): Cell {
     rect,
     tokenValue: null,
   };
-  cells.set(key, cell);
+  visibleCells.set(key, cell);
 
   // Initial token (deterministic)
   const initial = initialTokenValue(coord);
@@ -270,7 +270,7 @@ function updateVisibleCells() {
   const maxCol = Math.floor(east / TILE_DEGREES);
 
   // Despawn cells that are *no longer visible*
-  for (const [key, cell] of cells) {
+  for (const [key, cell] of visibleCells) {
     const { row, col } = cell.coord;
     const outOfView = row < minRow || row > maxRow || col < minCol ||
       col > maxCol;
@@ -280,7 +280,7 @@ function updateVisibleCells() {
       if (cell.label) {
         map.removeLayer(cell.label);
       }
-      cells.delete(key);
+      visibleCells.delete(key);
     }
   }
 
