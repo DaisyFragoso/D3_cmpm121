@@ -11,6 +11,48 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
+//save type
+type SavedGameState = {
+  playerLat: number;
+  playerLng: number;
+  handTokenValue: number | null;
+  modifiedCells: Array<[string, number | null]>;
+  movementMode: "buttons" | "geolocation";
+};
+
+function saveGameState(movementMode: "buttons" | "geolocation") {
+  const state: SavedGameState = {
+    playerLat: playerLatLng.lat,
+    playerLng: playerLatLng.lng,
+    handTokenValue,
+    modifiedCells: Array.from(modifiedCellContents.entries()),
+    movementMode,
+  };
+
+  localStorage.setItem("d3-game-state", JSON.stringify(state));
+}
+
+// function loadGameState(): "buttons" | "geolocation" {
+//   const raw = localStorage.getItem("d3-game-state");
+//   if (!raw) return "buttons";
+
+//   const state = JSON.parse(raw) as SavedGameState;
+
+//   playerLatLng = leaflet.latLng(state.playerLat, state.playerLng);
+//   handTokenValue = state.handTokenValue;
+
+//   modifiedCellContents.clear();
+//   for (const [key, value] of state.modifiedCells) {
+//     modifiedCellContents.set(key, value);
+//   }
+
+//   playerMarker.setLatLng(playerLatLng);
+//   updateStatusPanel();
+//   updateVisibleCells();
+
+//   return state.movementMode ?? "buttons";
+// }
+
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
 document.body.append(mapDiv);
@@ -352,6 +394,34 @@ makeMoveButton("North", "northBtn", +1, 0);
 makeMoveButton("South", "southBtn", -1, 0);
 makeMoveButton("East", "eastBtn", 0, +1);
 makeMoveButton("West", "westBtn", 0, -1);
+
+// New game / restart button
+function makeNewGameButton() {
+  const button = document.createElement("button");
+  button.textContent = "New Game";
+
+  button.addEventListener("click", () => {
+    // reset gameplay state
+    modifiedCellContents.clear();
+    handTokenValue = null;
+
+    // reset player location
+    playerLatLng = CLASSROOM_LATLNG.clone();
+    playerMarker.setLatLng(playerLatLng);
+    map.panTo(playerLatLng);
+
+    // update ui & redraw map
+    updateStatusPanel();
+    updateVisibleCells();
+
+    // save reset state
+    saveGameState("buttons");
+  });
+
+  controlPanelDiv.append(button);
+}
+
+makeNewGameButton();
 
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
