@@ -53,3 +53,12 @@ changes in part b
   - raise the win state to 32
   -add north/south/east/west buttons
   - remove debugging logs 
+
+## Pard d.C - Plan - Object Persistence 
+Upgrade the map so cells behave as if their modified state is remembered even adter leaving the visible area. Unmodified cells will be cheap in memory whi;e modified cells will be saved and restored when back in the view. 
+  - Split visible rendered cells from saved logical contenrs
+  - Create modifiedCellContenrs map
+  - Add helpers for reading and writing cell info
+  - Refactor click/crafing logic to write into modified state
+  - refactor visible cell redraw from saved content
+  - remove old assumption that off sceen cells are always forgotten
