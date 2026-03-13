@@ -11,14 +11,14 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
+const mapDiv = document.createElement("div");
+mapDiv.id = "map";
+document.body.append(mapDiv);
+
 //  basic UI Container
 const controlPanelDiv = document.createElement("div");
 controlPanelDiv.id = "controlPanel";
 document.body.append(controlPanelDiv);
-
-const mapDiv = document.createElement("div");
-mapDiv.id = "map";
-document.body.append(mapDiv);
 
 const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
@@ -328,6 +328,18 @@ document.addEventListener("keydown", (ev) => {
   if (ev.key === "ArrowRight") movePlayer(0, +1);
   if (ev.key === "ArrowLeft") movePlayer(0, -1);
 });
+
+function makeMoveButton(label: string, dRow: number, dCol: number) {
+  const button = document.createElement("button");
+  button.textContent = label;
+  button.addEventListener("click", () => movePlayer(dRow, dCol));
+  controlPanelDiv.append(button);
+}
+
+makeMoveButton("North", +1, 0);
+makeMoveButton("South", -1, 0);
+makeMoveButton("East", 0, +1);
+makeMoveButton("West", 0, -1);
 
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
