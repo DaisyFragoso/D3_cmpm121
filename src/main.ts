@@ -32,26 +32,30 @@ function saveGameState(movementMode: "buttons" | "geolocation") {
   localStorage.setItem("d3-game-state", JSON.stringify(state));
 }
 
-// function loadGameState(): "buttons" | "geolocation" {
-//   const raw = localStorage.getItem("d3-game-state");
-//   if (!raw) return "buttons";
+function loadGameState(): "buttons" | "geolocation" {
+  const raw = localStorage.getItem("d3-game-state");
+  if (!raw) return "buttons";
+  try {
+    const state = JSON.parse(raw) as SavedGameState;
 
-//   const state = JSON.parse(raw) as SavedGameState;
+    playerLatLng = leaflet.latLng(state.playerLat, state.playerLng);
+    handTokenValue = state.handTokenValue;
 
-//   playerLatLng = leaflet.latLng(state.playerLat, state.playerLng);
-//   handTokenValue = state.handTokenValue;
+    modifiedCellContents.clear();
+    for (const [key, value] of state.modifiedCells) {
+      modifiedCellContents.set(key, value);
+    }
 
-//   modifiedCellContents.clear();
-//   for (const [key, value] of state.modifiedCells) {
-//     modifiedCellContents.set(key, value);
-//   }
+    playerMarker.setLatLng(playerLatLng);
+    map.panTo(playerLatLng);
+    updateStatusPanel();
+    updateVisibleCells();
 
-//   playerMarker.setLatLng(playerLatLng);
-//   updateStatusPanel();
-//   updateVisibleCells();
-
-//   return state.movementMode ?? "buttons";
-// }
+    return state.movementMode ?? "buttons";
+  } catch {
+    return "buttons";
+  }
+}
 
 const mapDiv = document.createElement("div");
 mapDiv.id = "map";
@@ -251,6 +255,7 @@ function onCellClicked(cell: Cell) {
       setCellTokenValue(cell.coord, null);
       refreshCellDisplay(cell);
       updateStatusPanel();
+      saveGameState("buttons");
     }
     return;
   }
@@ -261,6 +266,7 @@ function onCellClicked(cell: Cell) {
     handTokenValue = null;
     refreshCellDisplay(cell);
     updateStatusPanel();
+    saveGameState("buttons");
     return;
   }
 
@@ -274,6 +280,7 @@ function onCellClicked(cell: Cell) {
     refreshCellDisplay(cell);
     updateStatusPanel();
     checkWinIfNeeded(newValue);
+    saveGameState("buttons");
     return;
   }
 }
@@ -367,6 +374,7 @@ function movePlayer(deltaRow: number, deltaCol: number) {
 
   // Update visible cells (in case bounds changed slightly)
   updateVisibleCells();
+  saveGameState("buttons");
 }
 
 // arrow buttoms for player movement
@@ -423,6 +431,7 @@ function makeNewGameButton() {
 
 makeNewGameButton();
 
+loadGameState();
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
 map.on("moveend", updateVisibleCells);
