@@ -11,6 +11,50 @@ import "./_leafletWorkaround.ts"; // fixes for missing Leaflet images
 // Import our luck function
 import luck from "./_luck.ts";
 
+class ButtonMovementController implements MovementController {
+  start() {
+    controlPanelDiv.style.display = "block";
+  }
+
+  stop() {
+    controlPanelDiv.style.display = "none";
+  }
+}
+
+class GeoMovementController implements MovementController {
+  watchId: number | null = null;
+
+  start() {
+    if (!navigator.geolocation) return;
+
+    this.watchId = navigator.geolocation.watchPosition((pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      playerLatLng = leaflet.latLng(lat, lng);
+      playerMarker.setLatLng(playerLatLng);
+      map.panTo(playerLatLng);
+
+      updateStatusPanel();
+      updateVisibleCells();
+      saveGameState("geolocation");
+    });
+  }
+
+  stop() {
+    if (this.watchId !== null) {
+      navigator.geolocation.clearWatch(this.watchId);
+      this.watchId = null;
+    }
+  }
+}
+
+// toggle of geolocation and buttons
+interface MovementController {
+  start(): void;
+  stop(): void;
+}
+
 //save type
 type SavedGameState = {
   playerLat: number;
@@ -55,6 +99,28 @@ function loadGameState(): "buttons" | "geolocation" {
   } catch {
     return "buttons";
   }
+}
+
+let currentController: MovementController | null = null;
+let currentMode: MovementMode = "buttons";
+type MovementMode = "buttons" | "geolocation";
+
+const buttonController = new ButtonMovementController();
+const geoController = new GeoMovementController();
+
+function setMovementMode(mode: MovementMode) {
+  if (currentController) currentController.stop();
+
+  currentMode = mode;
+
+  if (mode === "buttons") {
+    currentController = buttonController;
+  } else {
+    currentController = geoController;
+  }
+
+  currentController.start();
+  saveGameState(mode);
 }
 
 const mapDiv = document.createElement("div");
@@ -347,7 +413,8 @@ function updateVisibleCells() {
   //  Ensure that all visible cells exist (spawn if needed)
   for (let row = minRow; row <= maxRow; row++) {
     for (let col = minCol; col <= maxCol; col++) {
-      ensureCellExists({ row, col });
+      const cell = ensureCellExists({ row, col });
+      refreshCellDisplay(cell);
     }
   }
 }
@@ -443,11 +510,32 @@ function makeSaveGameButton() {
   controlPanelDiv.append(button);
 }
 
+//toggle button
+function makeToggleMovementButton() {
+  const button = document.createElement("button");
+  button.textContent = "Toggle Movement Mode";
+
+  button.addEventListener("click", () => {
+    const newMode = currentMode === "buttons" ? "geolocation" : "buttons";
+
+    setMovementMode(newMode);
+
+    button.textContent = newMode === "buttons"
+      ? "Switch to GPS"
+      : "Switch to Buttons";
+  });
+
+  controlPanelDiv.append(button);
+}
+
+makeToggleMovementButton();
+
 makeSaveGameButton();
 
 makeNewGameButton();
 
-loadGameState();
+const mode = loadGameState();
+setMovementMode(mode);
 // Initial draw + update on pan/zoom (even though zoom is fixed)
 updateVisibleCells();
 map.on("moveend", updateVisibleCells);
