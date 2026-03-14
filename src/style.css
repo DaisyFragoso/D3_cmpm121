@@ -1,7 +1,3 @@
-/* #controlPanel {
-  padding: 1rem;
-} */
-
 #statusPanel {
   padding: 1rem;
 }
@@ -12,12 +8,23 @@
 }
 
 #controlPanel {
-  display: grid;
-  grid-template-columns: 80px 80px 80px;
-  grid-template-rows: 50px 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+#movementButtons {
+  display: flex;
   justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
+}
+
+#diamondControls {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  align-items: center;
 }
 
 #northBtn {
@@ -38,4 +45,11 @@
 #southBtn {
   grid-column: 2;
   grid-row: 3;
+}
+
+#actionButtons {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }

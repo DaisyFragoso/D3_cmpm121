@@ -13,11 +13,11 @@ import luck from "./_luck.ts";
 
 class ButtonMovementController implements MovementController {
   start() {
-    controlPanelDiv.style.display = "block";
+    movementButtonsDiv.style.display = "block";
   }
 
   stop() {
-    controlPanelDiv.style.display = "none";
+    movementButtonsDiv.style.display = "none";
   }
 }
 
@@ -37,7 +37,7 @@ class GeoMovementController implements MovementController {
 
       updateStatusPanel();
       updateVisibleCells();
-      saveGameState("geolocation");
+      saveGameState(currentMode);
     });
   }
 
@@ -131,6 +131,20 @@ document.body.append(mapDiv);
 const controlPanelDiv = document.createElement("div");
 controlPanelDiv.id = "controlPanel";
 document.body.append(controlPanelDiv);
+
+// other buttons
+const movementButtonsDiv = document.createElement("div");
+movementButtonsDiv.id = "movementButtons";
+controlPanelDiv.append(movementButtonsDiv);
+
+// movement buttons
+const diamondDiv = document.createElement("div");
+diamondDiv.id = "diamondControls";
+movementButtonsDiv.append(diamondDiv);
+
+const actionButtonsDiv = document.createElement("div");
+actionButtonsDiv.id = "actionButtons";
+controlPanelDiv.append(actionButtonsDiv);
 
 const statusPanelDiv = document.createElement("div");
 statusPanelDiv.id = "statusPanel";
@@ -321,7 +335,7 @@ function onCellClicked(cell: Cell) {
       setCellTokenValue(cell.coord, null);
       refreshCellDisplay(cell);
       updateStatusPanel();
-      saveGameState("buttons");
+      saveGameState(currentMode);
     }
     return;
   }
@@ -332,7 +346,7 @@ function onCellClicked(cell: Cell) {
     handTokenValue = null;
     refreshCellDisplay(cell);
     updateStatusPanel();
-    saveGameState("buttons");
+    saveGameState(currentMode);
     return;
   }
 
@@ -346,7 +360,7 @@ function onCellClicked(cell: Cell) {
     refreshCellDisplay(cell);
     updateStatusPanel();
     checkWinIfNeeded(newValue);
-    saveGameState("buttons");
+    saveGameState(currentMode);
     return;
   }
 }
@@ -441,7 +455,7 @@ function movePlayer(deltaRow: number, deltaCol: number) {
 
   // Update visible cells (in case bounds changed slightly)
   updateVisibleCells();
-  saveGameState("buttons");
+  saveGameState(currentMode);
 }
 
 // arrow buttoms for player movement
@@ -462,7 +476,7 @@ function makeMoveButton(
   button.textContent = label;
   button.id = id;
   button.addEventListener("click", () => movePlayer(dRow, dCol));
-  controlPanelDiv.append(button);
+  diamondDiv.append(button);
 }
 
 makeMoveButton("North", "northBtn", +1, 0);
@@ -493,10 +507,10 @@ function makeNewGameButton() {
     updateVisibleCells();
 
     // save reset state
-    saveGameState("buttons");
+    saveGameState(currentMode);
   });
 
-  controlPanelDiv.append(button);
+  actionButtonsDiv.append(button);
 }
 
 function makeSaveGameButton() {
@@ -504,10 +518,10 @@ function makeSaveGameButton() {
   button.textContent = "Save Game";
 
   button.addEventListener("click", () => {
-    saveGameState("buttons");
+    saveGameState(currentMode);
   });
 
-  controlPanelDiv.append(button);
+  actionButtonsDiv.append(button);
 }
 
 //toggle button
@@ -525,7 +539,7 @@ function makeToggleMovementButton() {
       : "Switch to Buttons";
   });
 
-  controlPanelDiv.append(button);
+  actionButtonsDiv.append(button);
 }
 
 makeToggleMovementButton();
