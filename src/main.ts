@@ -418,6 +418,9 @@ function makeNewGameButton() {
     playerMarker.setLatLng(playerLatLng);
     map.panTo(playerLatLng);
 
+    for (const cell of visibleCells.values()) {
+      refreshCellDisplay(cell);
+    }
     // update ui & redraw map
     updateStatusPanel();
     updateVisibleCells();
@@ -428,6 +431,19 @@ function makeNewGameButton() {
 
   controlPanelDiv.append(button);
 }
+
+function makeSaveGameButton() {
+  const button = document.createElement("button");
+  button.textContent = "Save Game";
+
+  button.addEventListener("click", () => {
+    saveGameState("buttons");
+  });
+
+  controlPanelDiv.append(button);
+}
+
+makeSaveGameButton();
 
 makeNewGameButton();
 
